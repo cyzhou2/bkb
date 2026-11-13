@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN" data-fs="l">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0e14">
+<title>崩K崩 · běng-k-běng</title>
+<style>
+:root{
+  --bg:#0b0e14; --panel:#12161f; --line:#262c39; --ink:#e8e6e3; --dim:#8b93a5;
+  --gold:#e0b34d; --red:#e05a4f; --green:#57b894; --blue:#6fa8dc;
+  --fs:1.18; --fst:1.08;
+}
+html[data-fs="s"]{--fs:.92;--fst:.96}
+html[data-fs="m"]{--fs:1.04;--fst:1.02}
+html[data-fs="l"]{--fs:1.18;--fst:1.08}
+html[data-fs="xl"]{--fs:1.34;--fst:1.14}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:radial-gradient(1200px 600px at 50% -10%,#182030 0%,var(--bg) 60%);
+  color:var(--ink);font:calc(14px * var(--fs))/1.5 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;
+}
+header{
+  display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);
+  background:rgba(10,13,19,.8);backdrop-filter:blur(6px);position:sticky;top:0;z-index:20;flex-wrap:wrap;
+}
+.brand{font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.brand small{color:var(--dim);font-weight:400;margin-left:6px}
+.stats{display:flex;gap:12px;color:var(--dim);font-size:calc(13px * var(--fs));white-space:nowrap}
+.stats b{color:var(--gold);font-weight:600}
+header .spacer{flex:1}
+select,button{font:inherit;font-size:calc(13px * var(--fs));color:var(--ink);background:var(--panel);
+  border:1px solid var(--line);border-radius:9px;padding:7px 11px;cursor:pointer;touch-action:manipulation}
+button:hover,select:hover{border-color:var(--gold)}
+main{flex:1;display:grid;grid-template-columns:1fr 300px;grid-template-rows:minmax(0,1fr);gap:0;min-height:0;overflow:hidden}
+#arena{position:relative;padding:8px 16px;display:flex;align-items:center;justify-content:center;min-height:0}
+#circle{position:relative;height:min(100%,520px);width:auto;aspect-ratio:1;margin:auto;max-width:100%}
+#center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;
+  width:44%;padding:10px 8px;border-radius:14px;background:rgba(11,14,20,.78);
+  border:1px solid rgba(255,255,255,.06);pointer-events:none;z-index:5}
+#chant{font-size:calc(19px * var(--fs));font-weight:700;letter-spacing:1px;min-height:calc(26px * var(--fs));color:var(--gold);line-height:1.3}
+#hint{color:var(--dim);font-size:calc(11.5px * var(--fs));margin-top:6px;line-height:1.4}
+.token{
+  position:absolute;transform:translate(-50%,-50%);width:106px;padding:8px 6px;text-align:center;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;
+  transition:all .18s ease;cursor:default;user-select:none;
+}
+.token .nm{font-size:calc(13px * var(--fst));font-weight:600;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;height:calc(19px * var(--fst));line-height:calc(19px * var(--fst))}
+.token .qi{font-size:calc(11px * var(--fst));color:var(--gold);height:calc(15px * var(--fst));
+  line-height:calc(15px * var(--fst));overflow:hidden;white-space:nowrap}
+.token .act{height:calc(24px * var(--fst));display:flex;align-items:center;justify-content:center;margin-top:2px;overflow:hidden}
+.token .act img{width:calc(22px * var(--fst));height:calc(22px * var(--fst));border-radius:50%;display:block;background:rgba(255,255,255,.04)}
+.token .mv{font-size:calc(11px * var(--fst));color:var(--dim);height:calc(15px * var(--fst));
+  line-height:calc(15px * var(--fst));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.token.me{border-color:var(--gold);background:rgba(224,179,77,.10);box-shadow:0 0 0 1px rgba(224,179,77,.25)}
+.token.dead{opacity:.28;filter:grayscale(1)}
+.token.dead::after{content:"出局";position:absolute;inset:0;display:grid;place-items:center;
+  font-size:calc(20px * var(--fs));font-weight:700;color:var(--red);letter-spacing:4px}
+.token.pick{border-color:var(--red);background:rgba(224,90,79,.16);
+  box-shadow:0 0 0 1px rgba(224,90,79,.45),0 0 16px rgba(224,90,79,.25)}
+.token.pick .nm{color:#ffb3ab}
+.token.hot{cursor:pointer}
+.token.hot:hover{border-color:var(--red);transform:translate(-50%,-50%) scale(1.05)}
+.token .badge{position:absolute;top:-8px;right:-6px;background:var(--red);color:#fff;
+  font-size:calc(10px * var(--fs));font-weight:700;border-radius:10px;padding:1px 6px;display:none}
+.token.hot .badge{display:block}
+#logPanel{border-left:1px solid var(--line);background:rgba(8,10,15,.5);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#logPanel h3{margin:0;padding:12px 14px;font-size:calc(13px * var(--fs));color:var(--dim);border-bottom:1px solid var(--line)}
+#log{flex:1;overflow:auto;min-height:0;list-style:none;margin:0;padding:8px 14px;font-size:calc(12.5px * var(--fs))}
+#log li{padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.05);color:#c7ccd8}
+#log li.bad{color:var(--red)} #log li.good{color:var(--green)} #log li.warn{color:var(--gold)}
+footer{border-top:1px solid var(--line);background:rgba(10,13,19,.92);padding:9px 16px;
+  display:flex;flex-direction:column;gap:7px;max-height:36vh;overflow:auto}
+#tabs{display:flex;gap:6px;flex-wrap:wrap}
+#tabs button{padding:6px 14px;font-size:calc(13px * var(--fs))}
+#tabs button.on{border-color:var(--gold);color:var(--gold);background:rgba(224,179,77,.12)}
+#actions{display:flex;gap:6px;flex-wrap:wrap;min-height:calc(36px * var(--fs))}
+.chip{
+  border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:calc(12.5px * var(--fs));
+  cursor:pointer;background:var(--panel);display:inline-flex;gap:6px;align-items:center;touch-action:manipulation;
+}
+.chip:hover{border-color:var(--gold)}
+.chip .ic{width:calc(24px * var(--fs));height:calc(24px * var(--fs));border-radius:50%;object-fit:cover;
+  flex:0 0 auto;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12)}
+.pick .ic{width:calc(16px * var(--fs));height:calc(16px * var(--fs));border-radius:50%;vertical-align:-3px;margin-right:4px}
+#arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+.chip.cost b{color:var(--gold);font-weight:600}
+.chip.off{opacity:.32;cursor:not-allowed}
+.chip.sel{border-color:var(--blue);color:var(--blue)}
+#picks{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:calc(12px * var(--fs));color:var(--dim);min-height:calc(26px * var(--fs))}
+.pick{border:1px solid var(--red);color:#ffb3ab;background:rgba(224,90,79,.10);border-radius:999px;padding:2px 8px}
+#row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#go{padding:9px 22px;border-color:var(--gold);color:var(--gold);font-weight:600}
+#go:disabled{opacity:.35;cursor:not-allowed}
+#msg{color:var(--dim);font-size:calc(12.5px * var(--fs))}
+
+/* ---------- 开场教程 ---------- */
+.modal{position:fixed;inset:0;background:rgba(4,6,10,.86);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.hidden{display:none}
+.modal-card{width:min(580px,94vw);max-height:90vh;overflow:auto;background:#12161f;border:1px solid var(--line);
+  border-radius:16px;padding:16px 20px 14px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.tut-head{display:flex;justify-content:space-between;align-items:center;color:var(--dim);font-size:calc(12px * var(--fs))}
+.tut-head b{color:var(--gold);font-size:calc(13px * var(--fs));letter-spacing:.5px}
+.tut-body{min-height:calc(230px * var(--fs));padding:12px 0 6px}
+.tut-body h3{margin:0 0 10px;font-size:calc(17px * var(--fs));color:var(--ink)}
+.tut-body ul{margin:0;padding-left:18px;line-height:1.85;color:#c7ccd8;font-size:calc(13.5px * var(--fs))}
+.tut-body li b{color:var(--gold)}
+.tut-imgs{display:flex;gap:12px;margin-top:14px;justify-content:center;flex-wrap:wrap}
+.tut-imgs figure{margin:0;text-align:center;font-size:calc(11px * var(--fs));color:var(--dim)}
+.tut-imgs img{width:calc(64px * var(--fs));height:calc(64px * var(--fs));border-radius:50%;border:1px solid var(--line);background:#000;display:block;margin-bottom:4px}
+.tut-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px;gap:10px;flex-wrap:wrap}
+.dots{display:flex;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:#2a3140}
+.dot.on{background:var(--gold)}
+.tut-foot .btns{display:flex;gap:8px}
+.tut-foot button:disabled{opacity:.32;cursor:not-allowed}
+#tutNext{border-color:var(--gold);color:var(--gold);font-weight:600;min-width:104px}
+
+/* ---------- 平板 / 手机 ---------- */
+@media (max-width:900px){
+  main{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
+  #logPanel{max-height:140px;border-left:none;border-top:1px solid var(--line)}
+}
+@media (max-width:560px){
+  header{padding:6px 9px;gap:6px}
+  .brand{font-size:calc(13px * var(--fs))}
+  .brand small{display:none}
+  .stats{gap:8px;font-size:calc(11px * var(--fs))}
+  header select,header button{padding:5px 7px;font-size:calc(11.5px * var(--fs))}
+  header .spacer{display:none}
+
+  #arena{padding:4px 6px}
+  #circle{width:min(88vw,360px);height:auto}
+  .token{width:66px;padding:4px 3px;border-radius:9px}
+  .token .nm{font-size:calc(11px * var(--fst));height:calc(15px * var(--fst));line-height:calc(15px * var(--fst))}
+  .token .qi,.token .mv{font-size:calc(9px * var(--fst));height:calc(12px * var(--fst));line-height:calc(12px * var(--fst))}
+  .token .act{height:calc(19px * var(--fst))}
+  .token .act img{width:calc(17px * var(--fst));height:calc(17px * var(--fst))}
+  .token .badge{font-size:9px;padding:0 4px;top:-6px;right:-4px}
+  .token.dead::after{font-size:calc(13px * var(--fst));letter-spacing:1px}
+  #center{width:40%;padding:7px 5px;border-radius:10px}
+  #chant{font-size:calc(14px * var(--fs));min-height:18px}
+  #hint{font-size:calc(9px * var(--fs));margin-top:2px}
+
+  #logPanel{max-height:76px}
+  #logPanel h3{padding:6px 10px}
+  #log{font-size:calc(10.5px * var(--fs));padding:2px 10px}
+  #log li{padding:2px 0}
+
+  footer{padding:6px 8px;gap:5px;max-height:46vh}
+  #tabs button{padding:5px 10px;font-size:calc(12px * var(--fs))}
+  #actions{max-height:20vh;overflow:auto;min-height:0}
+  .chip{padding:5px 9px;font-size:calc(11.5px * var(--fs));gap:4px}
+  .chip .ic{width:calc(19px * var(--fs));height:calc(19px * var(--fs))}
+  #picks{min-height:calc(20px * var(--fs))}
+  #row{gap:8px}
+  #go{padding:8px 14px}
+  #msg{display:none}
+  .modal-card{padding:14px 14px 12px}
+  .tut-body{min-height:auto}
+}
+@media (max-height:640px) and (orientation:landscape){
+  header{padding:4px 10px;gap:5px}
+  #circle{width:min(72vh,300px)}
+  footer{max-height:40vh}
+  #actions{max-height:14vh}
+  #logPanel{max-height:64px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">beng·K·beng<small>崩K崩</small></div>
+  <div class="stats">
+    <span>第 <b id="roundLabel">1</b> 局</span>
+    <span>存活 <b id="aliveLabel">8</b></span>
+    <span>我 <b id="stageLabel">0 阶</b></span>
+  </div>
+  <div class="spacer"></div>
+  <select id="players" title="人数">
+    <option value="4">5 人</option>
+    <option value="7" selected>8 人</option>
+  </select>
+  <select id="difficulty" title="人机难度">
+    <option value="0">新手 AI</option>
+    <option value="1" selected>老手 AI</option>
+    <option value="2">高手 AI</option>
+  </select>
+  <select id="fontSize" title="字体大小">
+    <option value="s">字体·小</option>
+    <option value="m">字体·中</option>
+    <option value="l">字体·大</option>
+    <option value="xl">字体·特大</option>
+  </select>
+  <button id="btnRules">规则</button>
+  <button id="restart">重开一局</button>
+</header>
+
+<main>
+  <section id="arena">
+    <div id="circle">
+      <div id="center">
+        <div id="chant">准备</div>
+        <div id="hint">先在下方选一个行动</div>
+      </div>
+    </div>
+  </section>
+  <aside id="logPanel">
+    <h3>战报</h3>
+    <ol id="log"></ol>
+  </aside>
+</main>
+
+<footer>
+  <div id="tabs">
+    <button data-kind="attack" class="on">攻击</button>
+    <button data-kind="defense">防御</button>
+    <button data-kind="special">运气 / 自杀</button>
+  </div>
+  <div id="actions"></div>
+  <div id="picks"></div>
+  <div id="row">
+    <button id="go" disabled>出招（Enter）</button>
+    <button id="cancel">取消（Esc）</button>
+    <span id="msg">一回合只做一件事：攻击 / 防御 / 运气</span>
+  </div>
+</footer>
+
+<div id="tut" class="modal hidden">
+  <div class="modal-card">
+    <div class="tut-head">
+      <b>崩K崩 · 30 秒上手</b>
+      <button id="tutClose">跳过</button>
+    </div>
+    <div class="tut-body" id="tutBody"></div>
+    <div class="tut-foot">
+      <div class="dots" id="tutDots"></div>
+      <div class="btns">
+        <button id="tutPrev">上一步</button>
+        <button id="tutNext">下一步</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="rules.js"></script>
+<script src="ai.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
